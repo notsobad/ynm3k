@@ -7,13 +7,21 @@
 客户端请求符合某些规则的url，服务端能做出适当响应，输出合适文件头，输出正文可以为空。
 
 ## 任意静态文件
-* /static/$RANDOM.zip
+/static/$RANDOM.$EXT
+
+* /static/abc.zip
+* /static/xyz.html
+* /static/1234.js
 
 ## 任意动态文件
+/static/$RANDOM.$EXT
+
 *  /dynamic/abc.php
 *  /dynamic/abc.jsp
 
 ## 任意状态码
+/static/$CODE.$EXT
+
 * /code/500.php
 * /code/404.asp
 
