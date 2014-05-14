@@ -21,7 +21,7 @@ class MyHandler(tornado.web.RequestHandler):
 
 	def set_default_headers(self):
 		self.set_header("Server", "YNM3000")
-		self.set_header("Set-Cookie", "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2014 06:29:39 GMT; Max-Age=31449600; Path=/")
+		self.set_header("Set-Cookie", "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2018 06:29:39 GMT; Max-Age=31449600; Path=/")
 		
 class MainHandler(MyHandler):
 	def get(self):
