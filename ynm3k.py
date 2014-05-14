@@ -9,11 +9,6 @@ import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
 
-#STATIC_FILE = (
-#	'jpg', 'jpeg', 'png', 'ico', 'gif',
-#	'zip', 'rar', 'rmvb', 'avi', 
-#	'html', 'htm', 'txt'
-#)
 
 class MyHandler(tornado.web.RequestHandler):
 	def head(self, *args, **kwargs):
@@ -31,8 +26,6 @@ class MainHandler(MyHandler):
 class FileHandler(MyHandler):
 	def get(self, file_name):
 		arr = file_name.split('.')
-		#if len(arr) != 2 or arr[1].lower() not in STATIC_FILE:
-		#	return self.send_error(404)
 		modified = datetime.datetime.now()
 		self.set_header("Last-Modified", modified)
 		mime_type, encoding = mimetypes.guess_type(file_name)
@@ -61,6 +54,23 @@ class CodeHandler(MyHandler):
 	def write_error(self, code):
 		self.write('<h1>Http %s</h1> <hr/>Generated at %s' % (code, str(datetime.datetime.now())))
 
+
+class SizeHandler(MyHandler):
+	def get(self, size):
+		'''Generate certain size file'''
+		size = size.lower()
+		try:
+			if 'k' in size:
+				s = int(size.replace('k', '')) * 1024
+			elif 'm' in size:
+				s = int(size.replace('m', '')) * 1024 * 1024
+			else:
+				s = int(size)
+		except ValueError:
+			return self.write('Wrong argument')
+
+		self.write('f' * s)
+
 define("ip", help="ip to bind", default="0.0.0.0")
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
@@ -76,6 +86,7 @@ application = tornado.web.Application([
 	(r'/static/(.*)', FileHandler),
 	(r'/dynamic/(.*)', DynamicHandler),
 	(r'/code/(\d+).*', CodeHandler),
+	(r'/size/([\d|k|m]+).*', SizeHandler),
 	(r'/*', MainHandler),
 ], **settings)
 

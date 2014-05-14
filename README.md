@@ -44,5 +44,8 @@
 * /code/404.asp
 
 ## 任意大小文件
-todo
+/size/$SIZE.$EXT
 
+* /size/11k.zip
+* /size/1m.bin
+* /size/1024.rar
