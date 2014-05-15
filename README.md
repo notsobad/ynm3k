@@ -25,6 +25,9 @@
 	<h1>Http 502</h1> <hr/>Generated at 2014-05-14 17:25:11.603423
 
 ## 任意静态文件
+
+同一url不同请求内容相同。
+
 /static/$RANDOM.$EXT
 
 * /static/abc.zip
@@ -32,6 +35,9 @@
 * /static/1234.js
 
 ## 任意动态文件
+
+同一url不同请求内容不同。
+
 /static/$RANDOM.$EXT
 
 *  /dynamic/abc.php
@@ -44,6 +50,9 @@
 * /code/404.asp
 
 ## 任意大小文件
+
+可以输出指定大小的文件。
+
 /size/$SIZE.$EXT
 
 * /size/11k.zip

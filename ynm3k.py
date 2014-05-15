@@ -3,6 +3,7 @@
 import sys
 import datetime
 import mimetypes
+import random
 import httplib
 import pprint
 import tornado.ioloop
@@ -39,10 +40,9 @@ class FileHandler(MyHandler):
 
 class DynamicHandler(MyHandler):
 	def get(self, file_name):
-		'''pass'''
+		'''Generate random content for dynamic page'''
 		self.set_header("Content-Type", "text/html")
-		self.set_header("Set-Cookie", "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2014 06:29:39 GMT; Max-Age=31449600; Path=/")
-		self.write('hello :-)')
+		self.write('hello :-)<hr/>%s' % random.randint(0,99999))
 
 class CodeHandler(MyHandler):
 	def get(self, code):
@@ -69,6 +69,10 @@ class SizeHandler(MyHandler):
 		except ValueError:
 			return self.write('Wrong argument')
 
+		self.set_header('Content-Description', 'File Transfer')
+		self.set_header('Content-Type', 'application/octet-stream')
+		#self.set_header('attachment','attachment; filename="a.zip"')
+		self.set_header('Content-Transfer-Encoding','binary')
 		self.write('f' * s)
 
 define("ip", help="ip to bind", default="0.0.0.0")
