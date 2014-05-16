@@ -1,4 +1,4 @@
-# ynm3k 
+# A dynamic website for test usage.
 
 集多种杀人武器于一身的终极武器：“要你命3000”！
 
@@ -24,9 +24,9 @@
 	<
 	<h1>Http 502</h1> <hr/>Generated at 2014-05-14 17:25:11.603423
 
-## 任意静态文件
+## 静态文件
 
-同一url不同请求内容相同。
+同一url, 不同请求会输出相同响应。
 
 /static/$RANDOM.$EXT
 
@@ -34,22 +34,22 @@
 * /static/xyz.html
 * /static/1234.js
 
-## 任意动态文件
+## 动态文件
 
-同一url不同请求内容不同。
+同一url, 不同请求会输出不同响应。
 
 /static/$RANDOM.$EXT
 
 *  /dynamic/abc.php
 *  /dynamic/abc.jsp
 
-## 任意状态码
+## HTTP状态码
 /static/$CODE.$EXT
 
 * /code/500.php
 * /code/404.asp
 
-## 任意大小文件
+## 指定大小文件
 
 可以输出指定大小的文件。
 
