@@ -38,13 +38,13 @@
 
 同一url, 不同请求会输出不同响应。
 
-/static/$RANDOM.$EXT
+/dynamic/$RANDOM.$EXT
 
 *  /dynamic/abc.php
 *  /dynamic/abc.jsp
 
 ## HTTP状态码
-/static/$CODE.$EXT
+/code/$CODE.$EXT
 
 * /code/500.php
 * /code/404.asp
