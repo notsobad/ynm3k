@@ -1,10 +1,10 @@
-# A dynamic website for test usage.
+# A dynamic website for test purpose
 
 集多种杀人武器于一身的终极武器：“要你命3000”！
 
-用torando搭建的一个web服务器，模拟某些规则的url，可以用于cdn、waf系统的测试用途。
+用torando搭建的一个web应用，模拟某些规则的url，可以用于cdn、waf系统的测试用途。
 
-客户端请求符合某些规则的url，服务端能做出适当响应，输出合适文件头，输出正文可以为空。
+客户端请求符合某些规则的url，服务端能做出适当响应，输出对应内容。
 
 样例：
 
