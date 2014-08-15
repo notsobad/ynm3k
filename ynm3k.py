@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 import sys
+import time
 import datetime
 import mimetypes
 import random
@@ -16,13 +17,13 @@ class MyHandler(tornado.web.RequestHandler):
 		return self.get(*args, **kwargs)
 
 	def set_default_headers(self):
-		self.set_header("Server", "YNM3000")
+		self.set_header("Server", "YNM3k")
 		self.set_header("Set-Cookie", "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2018 06:29:39 GMT; Max-Age=31449600; Path=/")
 		
 class MainHandler(MyHandler):
 	def get(self):
 		self.write('<pre>%s</pre>' % pprint.pformat( self.request.headers ))
-		self.write("<hr/>YNM3000")
+		self.write("<hr/>YNM3k")
 
 class FileHandler(MyHandler):
 	def get(self, file_name):
@@ -75,6 +76,32 @@ class SizeHandler(MyHandler):
 		self.set_header('Content-Transfer-Encoding','binary')
 		self.write('f' * s)
 
+class SlowHandler(MyHandler):
+	@tornado.web.asynchronous
+	def get(self, start, end=0):
+		self.write("Start at: %s<br/>" % datetime.datetime.now())
+		_start = int(start)
+		_end = 0
+		
+		if end:
+			_end = int(end)
+
+		if _end and _end > _start:
+			s = random.uniform(_start, _end)
+		else:
+			s = _start
+		self._sleep(int(s), callback=self.on_response)
+
+	def _sleep(self, s, callback):
+		time.sleep(s)
+		callback("End at: %s<br/>" % datetime.datetime.now() )
+
+	def on_response(self, ret):
+		if not ret:
+			raise tornado.web.httperror(500)
+		self.write(ret)
+		self.finish()	
+
 define("ip", help="ip to bind", default="0.0.0.0")
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
@@ -91,6 +118,7 @@ application = tornado.web.Application([
 	(r'/dynamic/(.*)', DynamicHandler),
 	(r'/code/(\d+).*', CodeHandler),
 	(r'/size/([\d|k|m]+).*', SizeHandler),
+	(r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
 	(r'/*', MainHandler),
 ], **settings)
 

@@ -58,3 +58,9 @@
 * /size/11k.zip
 * /size/1m.bin
 * /size/1024.rar
+
+## 模拟慢后端
+模拟一个需要n秒的响应`/slow/$SECONDS`, 模拟一个耗时在一个时间范围内的响应`/slow/$START-$END`
+
+* /slow/3
+* /slow/4-10
