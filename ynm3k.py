@@ -90,7 +90,7 @@ class SlowHandler(MyHandler):
 			s = random.uniform(_start, _end)
 		else:
 			s = _start
-		self._sleep(int(s), callback=self.on_response)
+		self._sleep(s, callback=self.on_response)
 
 	def _sleep(self, s, callback):
 		time.sleep(s)

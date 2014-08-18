@@ -64,3 +64,7 @@
 
 * /slow/3
 * /slow/4-10
+
+python版本这个高并发下可能性能较弱，增加了一个nginx-lua版本，参考nginx-ynm3k.conf, 接口如下：
+* /slow?r=3
+* /slow?r=3-10
