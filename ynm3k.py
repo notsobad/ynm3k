@@ -10,6 +10,8 @@ import pprint
 import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
+import tornado
+from tornado import gen
 
 
 class MyHandler(tornado.web.RequestHandler):
@@ -78,7 +80,11 @@ class SizeHandler(MyHandler):
 
 class SlowHandler(MyHandler):
 	@tornado.web.asynchronous
+	@gen.engine
 	def get(self, start, end=0):
+		'''
+		Check https://gist.github.com/lbolla/3826189
+		'''
 		self.write("Start at: %s<br/>" % datetime.datetime.now())
 		_start = int(start)
 		_end = 0
@@ -90,17 +96,11 @@ class SlowHandler(MyHandler):
 			s = random.uniform(_start, _end)
 		else:
 			s = _start
-		self._sleep(s, callback=self.on_response)
 
-	def _sleep(self, s, callback):
-		time.sleep(s)
-		callback("End at: %s<br/>" % datetime.datetime.now() )
+		yield gen.Task(tornado.ioloop.IOLoop.instance().add_timeout, time.time() + s)
 
-	def on_response(self, ret):
-		if not ret:
-			raise tornado.web.httperror(500)
-		self.write(ret)
-		self.finish()	
+		self.write("End at: %s<br/>" % datetime.datetime.now() )
+		self.finish()
 
 define("ip", help="ip to bind", default="0.0.0.0")
 define("port", help="port to listen", default=9527)
