@@ -102,6 +102,20 @@ class SlowHandler(MyHandler):
 		self.write("End at: %s<br/>" % datetime.datetime.now() )
 		self.finish()
 
+
+class RedirectHandler(MyHandler):
+	def get(self, method):
+		url = self.get_argument('url')
+		if method in ('301', '302'):
+			self.redirect(url, permanent=(method == '301'))
+		elif method == 'js':
+			self.write('<script>location.href="%s"</script>' % url)
+		elif method == 'meta':
+			self.write('<meta http-equiv="refresh" content="0; url=%s" />' % url)
+		else:
+			self.write('wrong argument')
+
+
 define("ip", help="ip to bind", default="0.0.0.0")
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
@@ -119,6 +133,7 @@ application = tornado.web.Application([
 	(r'/code/(\d+).*', CodeHandler),
 	(r'/size/([\d|k|m]+).*', SizeHandler),
 	(r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
+	(r'/redirect/(.*)', RedirectHandler),
 	(r'/*', MainHandler),
 ], **settings)
 

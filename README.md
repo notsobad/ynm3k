@@ -68,3 +68,16 @@
 python版本这个高并发下可能性能较弱，增加了一个nginx-lua版本，参考nginx-ynm3k.conf, 接口如下：
 * /slow?r=3
 * /slow?r=3-10
+
+## 模拟HTTP跳转
+模拟各种情况的HTTP跳转
+
+* /redirect/301?url=http://www.notsobad.me  301跳转
+* /redirect/302?url=http://www.notsobad.me  302跳转
+* /redirect/js?url=http://www.notsobad.me javascript跳转
+* /redirect/meta?url=http://www.notsobad.me html meta跳转
+
+样例：
+
+    curl -v 'localhost:9527/redirect/301?url=file:///etc/passwd'
+    curl -v 'localhost:9527/redirect/302?url=http://www.jiasule.com'
