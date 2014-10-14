@@ -30,9 +30,9 @@
 
 /static/$RANDOM.$EXT
 
-* /static/abc.zip
-* /static/xyz.html
-* /static/1234.js
+* http://ynm3k.notsobad.me/static/abc.zip
+* http://ynm3k.notsobad.me/static/xyz.html
+* http://ynm3k.notsobad.me/static/1234.js
 
 ## 动态文件
 
@@ -40,14 +40,14 @@
 
 /dynamic/$RANDOM.$EXT
 
-*  /dynamic/abc.php
-*  /dynamic/abc.jsp
+* http://ynm3k.notsobad.me/dynamic/abc.php
+* http://ynm3k.notsobad.me/dynamic/abc.jsp
 
 ## HTTP状态码
 /code/$CODE.$EXT
 
-* /code/500.php
-* /code/404.asp
+* http://ynm3k.notsobad.me/code/500.php
+* http://ynm3k.notsobad.me/code/404.asp
 
 ## 指定大小文件
 
@@ -55,27 +55,27 @@
 
 /size/$SIZE.$EXT
 
-* /size/11k.zip
-* /size/1m.bin
-* /size/1024.rar
+* http://ynm3k.notsobad.me/size/11k.zip
+* http://ynm3k.notsobad.me/size/1m.bin
+* http://ynm3k.notsobad.me/size/1024.rar
 
 ## 模拟慢后端
 模拟一个需要n秒的响应`/slow/$SECONDS`, 模拟一个耗时在一个时间范围内的响应`/slow/$START-$END`
 
-* /slow/3
-* /slow/4-10
+* http://ynm3k.notsobad.me/slow/3
+* http://ynm3k.notsobad.me/slow/4-10
 
 python版本这个高并发下可能性能较弱，增加了一个nginx-lua版本，参考nginx-ynm3k.conf, 接口如下：
-* /slow?r=3
-* /slow?r=3-10
+* http://ynm3k.notsobad.me/slow?r=3
+* http://ynm3k.notsobad.me/slow?r=3-10
 
 ## 模拟HTTP跳转
 模拟各种情况的HTTP跳转
 
-* /redirect/301?url=http://www.notsobad.me  301跳转
-* /redirect/302?url=http://www.notsobad.me  302跳转
-* /redirect/js?url=http://www.notsobad.me javascript跳转
-* /redirect/meta?url=http://www.notsobad.me html meta跳转
+* http://ynm3k.notsobad.me/redirect/301?url=http://www.notsobad.me  301跳转
+* http://ynm3k.notsobad.me/redirect/302?url=http://www.notsobad.me  302跳转
+* http://ynm3k.notsobad.me/redirect/js?url=http://www.notsobad.me javascript跳转
+* http://ynm3k.notsobad.me/redirect/meta?url=http://www.notsobad.me html meta跳转
 
 样例：
 
