@@ -25,7 +25,7 @@ class MyHandler(tornado.web.RequestHandler):
 class MainHandler(MyHandler):
 	def get(self):
 		self.write('<pre>%s</pre>' % pprint.pformat( self.request.headers ))
-		self.write("<hr/>YNM3k")
+		self.write('<hr/>YNM3k (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github)')
 
 class FileHandler(MyHandler):
 	def get(self, file_name):
