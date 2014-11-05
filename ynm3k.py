@@ -55,7 +55,7 @@ class DynamicHandler(MyHandler):
 		d['arguments'] = self.request.arguments
 
 		s = json.dumps(d, indent=4, ensure_ascii=False)
-		self.write('hello :-)<hr/>%s\n%s' % (random.randint(0,99999), s))
+		self.write('hello :-)<pre>%s</pre><hr>%s' % (s, random.randint(0,99999)))
 
 	def post(self):
 		self.set_header("Content-Type", "text/html")
@@ -68,7 +68,7 @@ class DynamicHandler(MyHandler):
 		d['arguments'] = self.request.arguments
 
 		s = json.dumps(d, indent=4, ensure_ascii=False)
-		self.write('hello :-)<hr/>%s\n%s' % (random.randint(0,99999), s))
+		self.write('hello :-)><pre>%s</pre><hr>%s' % (s, random.randint(0,99999)))
 
 class CodeHandler(MyHandler):
 	def get(self, code):
