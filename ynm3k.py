@@ -97,6 +97,13 @@ class CodeHandler(MyHandler):
             (code, str(
                 datetime.datetime.now())))
 
+    def set_status(self, status_code, reason=None):
+        try:
+            super(CodeHandler, self).set_status(status_code, reason)
+        except:
+            tornado.web.RequestHandler._status_code = status_code
+            tornado.web.RequestHandler._reason = "unknown service error"
+
 
 class SizeHandler(MyHandler):
 
