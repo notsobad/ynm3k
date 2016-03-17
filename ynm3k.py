@@ -66,7 +66,7 @@ class DynamicHandler(MyHandler):
         d['query'] = self.request.query
         d['uri'] = self.request.uri
         d['body'] = self.request.body
-        d['arguments'] = self.request.arguments
+        d['arguments'] = str(self.request.arguments)
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
         self.write('hello :-)<pre>%s</pre><hr>%s' %
@@ -80,7 +80,7 @@ class DynamicHandler(MyHandler):
         d['query'] = self.request.query
         d['uri'] = self.request.uri
         d['body'] = self.request.body
-        d['arguments'] = self.request.arguments
+        d['arguments'] = str(self.request.arguments)
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
         self.write('hello :-)><pre>%s</pre><hr>%s' %
