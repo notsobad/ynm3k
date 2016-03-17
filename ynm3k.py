@@ -179,7 +179,7 @@ define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
 settings = {
     #'template_path' : os.path.join(os.path.dirname(__file__), 'templates'),
-    'debug': True,
+    'debug': options.debug,
     'gzip': True
 }
 
