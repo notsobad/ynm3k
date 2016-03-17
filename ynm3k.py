@@ -13,7 +13,7 @@ from tornado.options import define, options
 import tornado
 from tornado import gen
 import json
-
+from cStringIO import StringIO
 
 class MyHandler(tornado.web.RequestHandler):
 
@@ -61,7 +61,7 @@ class DynamicHandler(MyHandler):
         '''Generate random content for dynamic page'''
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = self.request.headers
+        d['headers'] = str(self.request.headers)
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
@@ -75,7 +75,7 @@ class DynamicHandler(MyHandler):
     def post(self):
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = self.request.headers
+        d['headers'] = str(self.request.headers)
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
@@ -179,7 +179,7 @@ define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
 settings = {
     #'template_path' : os.path.join(os.path.dirname(__file__), 'templates'),
-    'debug': options.debug,
+    'debug': True,
     'gzip': True
 }
 
