@@ -13,7 +13,7 @@ from tornado.options import define, options
 import tornado
 from tornado import gen
 import json
-
+from cStringIO import StringIO
 
 class MyHandler(tornado.web.RequestHandler):
 
@@ -61,12 +61,12 @@ class DynamicHandler(MyHandler):
         '''Generate random content for dynamic page'''
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = self.request.headers
+        d['headers'] = str(self.request.headers)
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
         d['body'] = self.request.body
-        d['arguments'] = self.request.arguments
+        d['arguments'] = str(self.request.arguments)
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
         self.write('hello :-)<pre>%s</pre><hr>%s' %
@@ -75,12 +75,12 @@ class DynamicHandler(MyHandler):
     def post(self):
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = self.request.headers
+        d['headers'] = str(self.request.headers)
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
         d['body'] = self.request.body
-        d['arguments'] = self.request.arguments
+        d['arguments'] = str(self.request.arguments)
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
         self.write('hello :-)><pre>%s</pre><hr>%s' %
