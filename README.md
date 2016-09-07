@@ -6,6 +6,14 @@
 
 客户端请求符合某些规则的url，服务端能做出适当响应，输出对应内容。
 
+运行：
+
+```
+cd ynm3k
+docker build -t ynm3k .
+docker run -it --rm -p 9527:9527 ynm3k
+```
+
 样例：
 
 	wangxh:~/myapp/ynm3k$ curl 127.1:9527/code/502.jpg -vv

@@ -30,7 +30,12 @@ class MyHandler(tornado.web.RequestHandler):
 class MainHandler(MyHandler):
 
     def get(self):
-        self.write('<pre>%s</pre>' % pprint.pformat(self.request.headers))
+        try:
+            headers = self.request.headers._dict
+        except:
+            headers = self.request.headers
+
+        self.write('<pre>%s</pre>' % json.dumps(headers, indent=1, sort_keys=True, skipkeys=True))
         self.write(
             '<hr/>YNM3k (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github)')
 
