@@ -11,7 +11,7 @@
 ```
 cd ynm3k
 docker build -t ynm3k .
-docker run -it --rm -p 9527:9527 ynm3k
+docker run -it --rm -p 9527:80 ynm3k
 ```
 
 样例：

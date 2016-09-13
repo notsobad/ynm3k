@@ -4,5 +4,5 @@ WORKDIR /code
 ADD requirements.txt /code
 RUN pip install -r requirements.txt
 ADD . /code
-EXPOSE 9527
-CMD python ynm3k.py
+EXPOSE 80 
+CMD python ynm3k.py --port=80
