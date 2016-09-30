@@ -50,11 +50,11 @@ class FileHandler(MyHandler):
         if mime_type:
             self.set_header("Content-Type", mime_type)
         try:
-            cache_time = int(self.request.headers.get('cache', '95270'))
+            cache_time = int(self.request.headers.get('Cache', '95270'))
         except:
             cache_time = 95270
         if cache_time:
-            self.set_header("Expires", datetime.datetime.utcnow() + 
+            self.set_header("Expires", datetime.datetime.utcnow() +
                     datetime.timedelta(seconds=cache_time))
             self.set_header("Cache-Control", "max-age=" + str(cache_time))
         self.write(file_name)
@@ -66,30 +66,28 @@ class DynamicHandler(MyHandler):
         '''Generate random content for dynamic page'''
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = str(self.request.headers)
+        d['headers'] = dict(self.request.headers)
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
         d['body'] = self.request.body
         d['arguments'] = str(self.request.arguments)
+
+        try:
+            t = int(self.request.headers.get('Cache', 0))
+            assert t
+            self.set_header(
+                'Expires',
+                datetime.datetime.utcnow() + datetime.timedelta(seconds=t))
+            self.set_header('Cache-Control', 'max-age=%s' % t)
+        except:
+            pass
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
         self.write('hello :-)<pre>%s</pre><hr>%s' %
                    (s, random.randint(0, 99999)))
 
-    def post(self):
-        self.set_header("Content-Type", "text/html")
-        d = {}
-        d['headers'] = str(self.request.headers)
-        d['path'] = self.request.path
-        d['query'] = self.request.query
-        d['uri'] = self.request.uri
-        d['body'] = self.request.body
-        d['arguments'] = str(self.request.arguments)
-
-        s = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write('hello :-)><pre>%s</pre><hr>%s' %
-                   (s, random.randint(0, 99999)))
+    post = get
 
 
 class CodeHandler(MyHandler):
