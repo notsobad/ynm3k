@@ -2,6 +2,7 @@
 # coding: utf-8
 import sys
 import time
+import uuid
 import datetime
 import mimetypes
 import random
@@ -84,8 +85,7 @@ class DynamicHandler(MyHandler):
             pass
 
         s = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write('hello :-)<pre>%s</pre><hr>%s' %
-                   (s, random.randint(0, 99999)))
+        self.write('hello :-)<pre>%s</pre><hr>%s' % (s, uuid.uuid4()))
 
     post = get
 
