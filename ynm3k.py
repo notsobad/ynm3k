@@ -9,14 +9,12 @@ import random
 import socket
 import httplib
 import hashlib
-import pprint
 import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
 import tornado
 from tornado import gen
 import json
-from cStringIO import StringIO
 
 def node_id():
         hostname = socket.gethostname()
@@ -44,10 +42,46 @@ class MainHandler(MyHandler):
         except:
             headers = self.request.headers
 
-        self.write('<pre>%s</pre>' % json.dumps(headers, indent=1, sort_keys=True, skipkeys=True))
-        self.write(
-            '<hr/>SERVER_ID: %s, Powered by YNM3k (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github)' % settings['node_id'])
-
+        links = [
+            '/static/abc.js',
+            '/static/abc/xyz.css',
+            '/static/abc/xyz/uvw.txt',
+            '/static/abc.html',
+            '/static/abc.jpg',
+            '/dynamic/abc.php',
+            '/dynamic/abc.asp',
+            '/code/200',
+            '/code/400',
+            '/code/404',
+            '/code/502',
+            '/size/11k.zip',
+            '/size/1k.bin',
+            '/slow/3',
+            '/slow/4-10',
+            '/redirect/301?url=http://www.notsobad.me',
+            '/redirect/302?url=http://www.notsobad.me',
+            '/redirect/js?url=http://www.notsobad.me',
+        ]
+        tpl = '''
+        <h1>YNM3K Test site</h1>
+        <h2>Request header</h2>
+        <pre>{% for h in headers %}{{ h }}: {{ headers[h] }}
+            {% end %}
+        </pre>
+        <h2>Links</h2>
+        <ul>
+            {% for link in links %}
+            <li><a href="{{ link }}">{{ link }}</a></li>
+            {% end %}
+        </ul>
+        <footer>
+            <hr/>SERVER-ID: {{ node_id }}, Powered by YNM3K (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github
+        </footer>
+        '''
+        node_id = settings['node_id']
+        t = tornado.template.Template(tpl, whitespace="single")
+        out = t.generate(headers=headers, node_id=settings['node_id'], links=links)
+        self.write(out)
 
 class FileHandler(MyHandler):
 
@@ -189,7 +223,6 @@ define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
 settings = {
-    #'template_path' : os.path.join(os.path.dirname(__file__), 'templates'),
     'debug': options.debug,
     'node_id': node_id(),
     'gzip': True
