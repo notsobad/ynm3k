@@ -6,7 +6,9 @@ import uuid
 import datetime
 import mimetypes
 import random
+import socket
 import httplib
+import hashlib
 import pprint
 import tornado.ioloop
 import tornado.web
@@ -16,16 +18,22 @@ from tornado import gen
 import json
 from cStringIO import StringIO
 
+def node_id():
+        hostname = socket.gethostname()
+        m = hashlib.md5()
+        m.update(hostname)
+        return m.hexdigest()[:7]
+
 class MyHandler(tornado.web.RequestHandler):
 
     def head(self, *args, **kwargs):
         return self.get(*args, **kwargs)
 
     def set_default_headers(self):
-        self.set_header("Server", "YNM3k")
+        self.set_header("Server", "YNM3K-%s" % settings['node_id'])
         self.set_header(
             "Set-Cookie",
-            "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2018 06:29:39 GMT; Max-Age=31449600; Path=/")
+            "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/")
 
 
 class MainHandler(MyHandler):
@@ -38,7 +46,7 @@ class MainHandler(MyHandler):
 
         self.write('<pre>%s</pre>' % json.dumps(headers, indent=1, sort_keys=True, skipkeys=True))
         self.write(
-            '<hr/>YNM3k (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github)')
+            '<hr/>SERVER_ID: %s, Powered by YNM3k (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github)' % settings['node_id'])
 
 
 class FileHandler(MyHandler):
@@ -183,6 +191,7 @@ tornado.options.parse_command_line()
 settings = {
     #'template_path' : os.path.join(os.path.dirname(__file__), 'templates'),
     'debug': options.debug,
+    'node_id': node_id(),
     'gzip': True
 }
 
