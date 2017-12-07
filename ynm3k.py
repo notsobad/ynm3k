@@ -75,7 +75,7 @@ class MainHandler(MyHandler):
             {% end %}
         </ul>
         <footer>
-            <hr/>SERVER-ID: {{ node_id }}, Powered by YNM3K (<a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github
+            <hr/>SERVER-ID: {{ node_id }}, Powered by YNM3K <a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github
         </footer>
         '''
         node_id = settings['node_id']

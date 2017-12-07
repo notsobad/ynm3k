@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:2.7.14-alpine3.6
 RUN mkdir /code
 WORKDIR /code
 ADD requirements.txt /code
