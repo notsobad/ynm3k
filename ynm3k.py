@@ -9,18 +9,18 @@ import random
 import socket
 import httplib
 import hashlib
+import json
 import tornado.ioloop
 import tornado.web
 from tornado.options import define, options
 import tornado
 from tornado import gen
-import json
 
 def node_id():
-        hostname = socket.gethostname()
-        m = hashlib.md5()
-        m.update(hostname)
-        return m.hexdigest()[:7]
+    hostname = socket.gethostname()
+    m = hashlib.md5()
+    m.update(hostname)
+    return m.hexdigest()[:7]
 
 class MyHandler(tornado.web.RequestHandler):
 

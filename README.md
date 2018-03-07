@@ -6,15 +6,19 @@
 
 客户端请求符合某些规则的url，服务端能做出适当响应，输出对应内容。
 
-运行：
+直接运行：
+```
+docker run -p 9527:80 notsobad/ynm3k
+```
 
+也可以本地打包：
 ```
 cd ynm3k
 docker build -t ynm3k .
 docker run -it --rm -p 9527:80 ynm3k
 ```
 
-样例：
+访问样例：
 
 	wangxh:~/myapp/ynm3k$ curl 127.1:9527/code/502.jpg -vv
 	> GET /code/502.jpg HTTP/1.1
