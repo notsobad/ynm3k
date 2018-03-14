@@ -7,7 +7,6 @@ import datetime
 import mimetypes
 import random
 import socket
-import httplib
 import hashlib
 import json
 import tornado.ioloop
@@ -16,7 +15,7 @@ from tornado.options import define, options
 import tornado
 from tornado import gen
 
-def node_id():
+def get_host_hash():
     hostname = socket.gethostname()
     m = hashlib.md5()
     m.update(hostname)
@@ -28,10 +27,11 @@ class MyHandler(tornado.web.RequestHandler):
         return self.get(*args, **kwargs)
 
     def set_default_headers(self):
-        self.set_header("Server", "YNM3K-%s" % settings['node_id'])
+        self.set_header("Server", "YNM3K-%s" % SETTINGS['node_id'])
         self.set_header(
             "Set-Cookie",
-            "csrftoken=8e0f2f299fede170969578ebceec0967; expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/")
+            "csrftoken=8e0f2f299fede170969578ebceec0967; "
+            "expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/")
 
 
 class MainHandler(MyHandler):
@@ -78,15 +78,13 @@ class MainHandler(MyHandler):
             <hr/>SERVER-ID: {{ node_id }}, Powered by YNM3K <a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github
         </footer>
         '''
-        node_id = settings['node_id']
-        t = tornado.template.Template(tpl, whitespace="single")
-        out = t.generate(headers=headers, node_id=settings['node_id'], links=links)
+        i = tornado.template.Template(tpl, whitespace="single")
+        out = i.generate(headers=headers, node_id=SETTINGS['node_id'], links=links)
         self.write(out)
 
 class FileHandler(MyHandler):
 
     def get(self, file_name):
-        arr = file_name.split('.')
         modified = datetime.datetime.now()
         self.set_header("Last-Modified", modified)
         mime_type, encoding = mimetypes.guess_type(file_name)
@@ -98,7 +96,7 @@ class FileHandler(MyHandler):
             cache_time = 95270
         if cache_time:
             self.set_header("Expires", datetime.datetime.utcnow() +
-                    datetime.timedelta(seconds=cache_time))
+                            datetime.timedelta(seconds=cache_time))
             self.set_header("Cache-Control", "max-age=" + str(cache_time))
         self.write(file_name)
 
@@ -117,17 +115,17 @@ class DynamicHandler(MyHandler):
         d['arguments'] = str(self.request.arguments)
 
         try:
-            t = int(self.request.headers.get('Cache', 0))
-            assert t
+            i = int(self.request.headers.get('Cache', 0))
+            assert i
             self.set_header(
                 'Expires',
-                datetime.datetime.utcnow() + datetime.timedelta(seconds=t))
-            self.set_header('Cache-Control', 'max-age=%s' % t)
+                datetime.datetime.utcnow() + datetime.timedelta(seconds=i))
+            self.set_header('Cache-Control', 'max-age=%s' % i)
         except:
             pass
 
-        s = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write('hello :-)<pre>%s</pre><hr>%s' % (s, uuid.uuid4()))
+        j = json.dumps(d, indent=4, ensure_ascii=False)
+        self.write('hello :-)<pre>%s</pre><hr>%s' % (j, uuid.uuid4()))
 
     post = get
 
@@ -137,7 +135,6 @@ class CodeHandler(MyHandler):
     def get(self, code):
         '''pass'''
         code = int(code)
-        msg = httplib.responses.get(code, "Unknown")
         self.send_error(code)
 
     def write_error(self, code):
@@ -161,11 +158,11 @@ class SizeHandler(MyHandler):
         size = size.lower()
         try:
             if 'k' in size:
-                s = int(size.replace('k', '')) * 1024
+                i = int(size.replace('k', '')) * 1024
             elif 'm' in size:
-                s = int(size.replace('m', '')) * 1024 * 1024
+                i = int(size.replace('m', '')) * 1024 * 1024
             else:
-                s = int(size)
+                i = int(size)
         except ValueError:
             return self.write('Wrong argument')
 
@@ -173,7 +170,7 @@ class SizeHandler(MyHandler):
         self.set_header('Content-Type', 'application/octet-stream')
         #self.set_header('attachment','attachment; filename="a.zip"')
         self.set_header('Content-Transfer-Encoding', 'binary')
-        self.write('f' * s)
+        return self.write('f' * i)
 
 
 class SlowHandler(MyHandler):
@@ -192,11 +189,11 @@ class SlowHandler(MyHandler):
             _end = int(end)
 
         if _end and _end > _start:
-            s = random.uniform(_start, _end)
+            i = random.uniform(_start, _end)
         else:
-            s = _start
+            i = _start
 
-        yield gen.Task(tornado.ioloop.IOLoop.instance().add_timeout, time.time() + s)
+        yield gen.Task(tornado.ioloop.IOLoop.instance().add_timeout, time.time() + i)
 
         self.write("End at: %s<br/>" % datetime.datetime.now())
         self.finish()
@@ -222,13 +219,13 @@ define("ip", help="ip to bind", default="0.0.0.0")
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
-settings = {
+SETTINGS = {
     'debug': options.debug,
-    'node_id': node_id(),
+    'node_id': get_host_hash(),
     'gzip': True
 }
 
-application = tornado.web.Application([
+APP = tornado.web.Application([
     (r'/', MainHandler),
     (r'/static/(.*)', FileHandler),
     (r'/dynamic/(.*)', DynamicHandler),
@@ -237,12 +234,12 @@ application = tornado.web.Application([
     (r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
     (r'/redirect/(.*)', RedirectHandler),
     (r'/*', MainHandler),
-], **settings)
+], **SETTINGS)
 
 if __name__ == "__main__":
     if not options.port:
         options.print_help()
         sys.exit()
-    application.listen(options.port, address=options.ip)
+    APP.listen(options.port, address=options.ip)
 
     tornado.ioloop.IOLoop.instance().start()
