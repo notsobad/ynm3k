@@ -36,6 +36,15 @@ docker run -it --rm -p 9527:80 ynm3k
 	<
 	<h1>Http 502</h1> <hr/>Generated at 2014-05-14 17:25:11.603423
 
+## Trace
+
+Show raw request header.
+
+/trace/
+
+* http://ynm3k.notsobad.me/trace/123.php
+
+
 ## 静态文件
 
 同一url, 不同请求会输出相同响应。

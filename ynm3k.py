@@ -43,6 +43,7 @@ class MainHandler(MyHandler):
             headers = self.request.headers
 
         links = [
+            '/trace/',
             '/static/abc.js',
             '/static/abc/xyz.css',
             '/static/abc/xyz/uvw.txt',
@@ -81,6 +82,17 @@ class MainHandler(MyHandler):
         i = tornado.template.Template(tpl, whitespace="single")
         out = i.generate(headers=headers, node_id=SETTINGS['node_id'], links=links)
         self.write(out)
+
+class TraceHandler(MyHandler):
+    def get(self):
+        self.set_header("Content-Type", "text/plain")
+        out = "{method} {url} {version}\r\n{headers}\r\n\r\n".format(method=self.request.method, 
+            url=self.request.uri, version=self.request.version, headers=str(self.request.headers))
+        self.write(out)
+
+    def post(self):
+        self.get()
+
 
 class FileHandler(MyHandler):
 
@@ -227,6 +239,7 @@ SETTINGS = {
 
 APP = tornado.web.Application([
     (r'/', MainHandler),
+    (r'/trace/?.*', TraceHandler),
     (r'/static/(.*)', FileHandler),
     (r'/dynamic/(.*)', DynamicHandler),
     (r'/code/(\d+).*', CodeHandler),
