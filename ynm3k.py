@@ -227,7 +227,7 @@ class RedirectHandler(MyHandler):
             self.write('wrong argument')
 
 
-define("ip", help="ip to bind", default="0.0.0.0")
+define("ip", help="ip to bind", default=None)
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
@@ -253,6 +253,10 @@ if __name__ == "__main__":
     if not options.port:
         options.print_help()
         sys.exit()
-    APP.listen(options.port, address=options.ip)
+
+    if options.ip:
+        APP.listen(options.port, address=options.ip)
+    else:
+        APP.listen(options.port)
 
     tornado.ioloop.IOLoop.instance().start()
