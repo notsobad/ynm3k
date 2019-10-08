@@ -1,26 +1,19 @@
-# A dynamic website for test purpose
-See also '[go-fakesite](https://github.com/notsobad/go-fakesite)', a go version of YNM3k.
+# YNM3K
+A Fakesite for http test, see also [go-fakesite](https://github.com/notsobad/go-fakesite).
+
+	docker run -p 9527:80 notsobad/ynm3k
+
+    curl http://127.0.0.1:9527/
 
 
-集多种杀人武器于一身的终极武器：“要你命3000”！
+Also you can build it yourself
 
-用torando搭建的一个web应用，模拟某些规则的url，可以用于cdn、waf系统的测试用途。
+	cd ynm3k
+	docker build -t ynm3k .
+	docker run -it --rm -p 9527:80 ynm3k
 
-客户端请求符合某些规则的url，服务端能做出适当响应，输出对应内容。
 
-直接运行：
-```
-docker run -p 9527:80 notsobad/ynm3k
-```
-
-也可以本地打包：
-```
-cd ynm3k
-docker build -t ynm3k .
-docker run -it --rm -p 9527:80 ynm3k
-```
-
-访问样例：
+A demo page with http 502 response:
 
 	wangxh:~/myapp/ynm3k$ curl 127.1:9527/code/502.jpg -vv
 	> GET /code/502.jpg HTTP/1.1
@@ -44,63 +37,60 @@ Show raw request header.
 
 /trace/
 
-* http://ynm3k.notsobad.me/trace/123.php
+* http://ynm3k.notsobad.vip/trace/123.php
 
 
-## 静态文件
+# Static file
 
-同一url, 不同请求会输出相同响应。
+Visit same url, get same result
 
 /static/$RANDOM.$EXT
 
-* http://ynm3k.notsobad.me/static/abc.zip
-* http://ynm3k.notsobad.me/static/xyz.html
-* http://ynm3k.notsobad.me/static/1234.js
+* http://ynm3k.notsobad.vip/static/abc.zip
+* http://ynm3k.notsobad.vip/static/xyz.html
+* http://ynm3k.notsobad.vip/static/1234.js
 
-## 动态文件
+## Dynamic url
 
-同一url, 不同请求会输出不同响应。
+Visit same url, get different result
 
 /dynamic/$RANDOM.$EXT
 
-* http://ynm3k.notsobad.me/dynamic/abc.php
-* http://ynm3k.notsobad.me/dynamic/abc.jsp
+* http://ynm3k.notsobad.vip/dynamic/abc.php
+* http://ynm3k.notsobad.vip/dynamic/abc.jsp
 
-## HTTP状态码
+## HTTP status code
 /code/$CODE.$EXT
 
-* http://ynm3k.notsobad.me/code/500.php
-* http://ynm3k.notsobad.me/code/404.asp
+* http://ynm3k.notsobad.vip/code/500.php
+* http://ynm3k.notsobad.vip/code/404.asp
 
-## 指定大小文件
-
-可以输出指定大小的文件。
+## Specified size response
+You can output a file of the specified size.
 
 /size/$SIZE.$EXT
 
-* http://ynm3k.notsobad.me/size/11k.zip
-* http://ynm3k.notsobad.me/size/1m.bin
-* http://ynm3k.notsobad.me/size/1024.rar
+* http://ynm3k.notsobad.vip/size/11k.zip
+* http://ynm3k.notsobad.vip/size/1m.bin
+* http://ynm3k.notsobad.vip/size/1024.rar
 
-## 模拟慢后端
-模拟一个需要n秒的响应`/slow/$SECONDS`, 模拟一个耗时在一个时间范围内的响应`/slow/$START-$END`
+## A server with a slow response
 
-* http://ynm3k.notsobad.me/slow/3
-* http://ynm3k.notsobad.me/slow/4-10
+Visit `/slow/$SECONDS`, the url will take $SECONDS time to render.
 
-python版本这个高并发下可能性能较弱，增加了一个nginx-lua版本，参考nginx-ynm3k.conf, 接口如下：
-* http://ynm3k.notsobad.me/slow?r=3
-* http://ynm3k.notsobad.me/slow?r=3-10
+* http://ynm3k.notsobad.vip/slow/3
+* http://ynm3k.notsobad.vip/slow/4-10
 
-## 模拟HTTP跳转
-模拟各种情况的HTTP跳转
 
-* http://ynm3k.notsobad.me/redirect/301?url=http://www.notsobad.me  301跳转
-* http://ynm3k.notsobad.me/redirect/302?url=http://www.notsobad.me  302跳转
-* http://ynm3k.notsobad.me/redirect/js?url=http://www.notsobad.me javascript跳转
-* http://ynm3k.notsobad.me/redirect/meta?url=http://www.notsobad.me html meta跳转
+## URL redirect
+All kinds of url redirect method
 
-样例：
+* http://ynm3k.notsobad.vip/redirect/301?url=http://www.notsobad.vip  301
+* http://ynm3k.notsobad.vip/redirect/302?url=http://www.notsobad.vip  302
+* http://ynm3k.notsobad.vip/redirect/js?url=http://www.notsobad.vip javascript
+* http://ynm3k.notsobad.vip/redirect/meta?url=http://www.notsobad.vip html meta
+
+DEMO:
 
     curl -v 'localhost:9527/redirect/301?url=file:///etc/passwd'
     curl -v 'localhost:9527/redirect/302?url=http://www.jiasule.com'
