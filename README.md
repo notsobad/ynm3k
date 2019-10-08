@@ -1,4 +1,6 @@
 # A dynamic website for test purpose
+See also '[go-fakesite](https://github.com/notsobad/go-fakesite)', a go version of YNM3k.
+
 
 集多种杀人武器于一身的终极武器：“要你命3000”！
 
