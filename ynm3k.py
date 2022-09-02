@@ -14,6 +14,7 @@ import tornado.web
 from tornado.options import define, options
 import tornado
 from tornado import gen
+from tornado.websocket import WebSocketHandler
 
 def get_host_hash():
     hostname = socket.gethostname()
@@ -26,12 +27,19 @@ class MyHandler(tornado.web.RequestHandler):
     def head(self, *args, **kwargs):
         return self.get(*args, **kwargs)
 
+    def options(self, *args, **kwargs):
+        pass
+
     def set_default_headers(self):
         self.set_header("Server", "YNM3K-%s" % SETTINGS['node_id'])
         self.set_header(
             "Set-Cookie",
             "csrftoken=8e0f2f299fede170969578ebceec0967; "
-            "expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/")
+            "expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/",
+        )
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Max-Age", "3600")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
 
 
 class MainHandler(MyHandler):
@@ -227,6 +235,21 @@ class RedirectHandler(MyHandler):
             self.write('wrong argument')
 
 
+class EchoWebsocketHandler(WebSocketHandler):
+    """回显websocket"""
+    def check_origin(self, origin):
+        return True
+
+    def open(self, *args, **kwargs):
+        print "websocket opened"
+
+    def on_message(self, message):
+        self.write_message(message, binary=False)
+
+    def on_close(self):
+        print 'websocket closed'
+
+
 define("ip", help="ip to bind", default=None)
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
@@ -234,7 +257,10 @@ tornado.options.parse_command_line()
 SETTINGS = {
     'debug': options.debug,
     'node_id': get_host_hash(),
-    'gzip': True
+    'gzip': True,
+    # https://www.tornadoweb.org/en/stable/web.html?highlight=websocket_ping_timeout#tornado.web.Application.settings
+    'websocket_ping_interval': 0,
+    # 'websocket_ping_timeout': 10,
 }
 
 APP = tornado.web.Application([
@@ -246,6 +272,7 @@ APP = tornado.web.Application([
     (r'/size/([\d|k|m]+).*', SizeHandler),
     (r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
     (r'/redirect/(.*)', RedirectHandler),
+    (r'/ws', EchoWebsocketHandler),
     (r'/*', MainHandler),
 ], **SETTINGS)
 
