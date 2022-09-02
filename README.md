@@ -10,7 +10,7 @@ Also you can build it yourself
 
 	cd ynm3k
 	docker build -t ynm3k .
-	docker run -it --rm -p 9527:80 ynm3k
+	docker run -it --rm -p 80:80 -p 81:80 -p 82:80 -p 83:90 ynm3k
 
 
 A demo page with http 502 response:
