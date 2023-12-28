@@ -14,27 +14,28 @@ from tornado.options import define, options
 import tornado
 from tornado import gen
 
+
 def get_host_hash():
     hostname = socket.gethostname()
     m = hashlib.md5()
-    m.update(hostname.encode('utf-8'))
+    m.update(hostname.encode("utf-8"))
     return m.hexdigest()[:7]
 
-class MyHandler(tornado.web.RequestHandler):
 
+class MyHandler(tornado.web.RequestHandler):
     def head(self, *args, **kwargs):
         return self.get(*args, **kwargs)
 
     def set_default_headers(self):
-        self.set_header("Server", "YNM3K-%s" % SETTINGS['node_id'])
+        self.set_header("Server", "YNM3K-%s" % SETTINGS["node_id"])
         self.set_header(
             "Set-Cookie",
             "csrftoken=8e0f2f299fede170969578ebceec0967; "
-            "expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/")
+            "expires=Thu, 09-Jan-2020 06:29:39 GMT; Max-Age=31449600; Path=/",
+        )
 
 
 class MainHandler(MyHandler):
-
     def get(self):
         try:
             headers = self.request.headers._dict
@@ -42,27 +43,27 @@ class MainHandler(MyHandler):
             headers = self.request.headers
 
         links = [
-            '/trace/',
-            '/static/abc.js',
-            '/static/abc/xyz.css',
-            '/static/abc/xyz/uvw.txt',
-            '/static/abc.html',
-            '/static/abc.jpg',
-            '/dynamic/abc.php',
-            '/dynamic/abc.asp',
-            '/code/200',
-            '/code/400',
-            '/code/404',
-            '/code/502',
-            '/size/11k.zip',
-            '/size/1k.bin',
-            '/slow/3',
-            '/slow/4-10',
-            '/redirect/301?url=http://www.notsobad.me',
-            '/redirect/302?url=http://www.notsobad.me',
-            '/redirect/js?url=http://www.notsobad.me',
+            "/trace/",
+            "/static/abc.js",
+            "/static/abc/xyz.css",
+            "/static/abc/xyz/uvw.txt",
+            "/static/abc.html",
+            "/static/abc.jpg",
+            "/dynamic/abc.php",
+            "/dynamic/abc.asp",
+            "/code/200",
+            "/code/400",
+            "/code/404",
+            "/code/502",
+            "/size/11k.zip",
+            "/size/1k.bin",
+            "/slow/3",
+            "/slow/4-10",
+            "/redirect/301?url=http://www.notsobad.me",
+            "/redirect/302?url=http://www.notsobad.me",
+            "/redirect/js?url=http://www.notsobad.me",
         ]
-        tpl = '''
+        tpl = """
         <h1>YNM3K Test site</h1>
         <h2>Request header</h2>
         <pre>{% for h in headers %}{{ h }}: {{ headers[h] }}
@@ -77,16 +78,21 @@ class MainHandler(MyHandler):
         <footer>
             <hr/>SERVER-ID: {{ node_id }}, Powered by YNM3K <a href="https://github.com/notsobad/ynm3k">Fork me</a> on Github
         </footer>
-        '''
+        """
         i = tornado.template.Template(tpl, whitespace="single")
-        out = i.generate(headers=headers, node_id=SETTINGS['node_id'], links=links)
+        out = i.generate(headers=headers, node_id=SETTINGS["node_id"], links=links)
         self.write(out)
+
 
 class TraceHandler(MyHandler):
     def get(self):
         self.set_header("Content-Type", "text/plain")
-        out = "{method} {url} {version}\r\n{headers}\r\n\r\n".format(method=self.request.method, 
-            url=self.request.uri, version=self.request.version, headers=str(self.request.headers))
+        out = "{method} {url} {version}\r\n{headers}\r\n\r\n".format(
+            method=self.request.method,
+            url=self.request.uri,
+            version=self.request.version,
+            headers=str(self.request.headers),
+        )
         self.write(out)
 
     def post(self):
@@ -94,7 +100,6 @@ class TraceHandler(MyHandler):
 
 
 class FileHandler(MyHandler):
-
     def get(self, file_name):
         modified = datetime.datetime.now()
         self.set_header("Last-Modified", modified)
@@ -102,57 +107,57 @@ class FileHandler(MyHandler):
         if mime_type:
             self.set_header("Content-Type", mime_type)
         try:
-            cache_time = int(self.request.headers.get('Cache', '95270'))
+            cache_time = int(self.request.headers.get("Cache", "95270"))
         except:
             cache_time = 95270
         if cache_time:
-            self.set_header("Expires", datetime.datetime.utcnow() +
-                            datetime.timedelta(seconds=cache_time))
+            self.set_header(
+                "Expires",
+                datetime.datetime.utcnow() + datetime.timedelta(seconds=cache_time),
+            )
             self.set_header("Cache-Control", "max-age=" + str(cache_time))
-        self.write(file_name+"\n")
+        self.write(file_name + "\n")
 
 
 class DynamicHandler(MyHandler):
-
     def get(self):
-        '''Generate random content for dynamic page'''
+        """Generate random content for dynamic page"""
         self.set_header("Content-Type", "text/html")
         d = {}
-        d['headers'] = dict(self.request.headers)
-        d['path'] = self.request.path
-        d['query'] = self.request.query
-        d['uri'] = self.request.uri
-        d['body'] = self.request.body.decode('utf-8')
-        d['arguments'] = str(self.request.arguments)
+        d["headers"] = dict(self.request.headers)
+        d["path"] = self.request.path
+        d["query"] = self.request.query
+        d["uri"] = self.request.uri
+        d["body"] = self.request.body.decode("utf-8")
+        d["arguments"] = str(self.request.arguments)
 
         try:
-            i = int(self.request.headers.get('Cache', 0))
+            i = int(self.request.headers.get("Cache", 0))
             assert i
             self.set_header(
-                'Expires',
-                datetime.datetime.utcnow() + datetime.timedelta(seconds=i))
-            self.set_header('Cache-Control', 'max-age=%s' % i)
+                "Expires", datetime.datetime.utcnow() + datetime.timedelta(seconds=i)
+            )
+            self.set_header("Cache-Control", "max-age=%s" % i)
         except:
             pass
 
         j = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write('<pre>%s</pre><hr/>%s\n' % (j, uuid.uuid4()))
+        self.write("<pre>%s</pre><hr/>%s\n" % (j, uuid.uuid4()))
 
     post = get
 
 
 class CodeHandler(MyHandler):
-
     def get(self, code):
-        '''pass'''
+        """pass"""
         code = int(code)
         self.send_error(code)
 
     def write_error(self, code):
         self.write(
-            '<h1>Http %s</h1> <hr/>Generated at %s\n' %
-            (code, str(
-                datetime.datetime.now())))
+            "<h1>Http %s</h1> <hr/>Generated at %s\n"
+            % (code, str(datetime.datetime.now()))
+        )
 
     def set_status(self, status_code, reason=None):
         try:
@@ -163,28 +168,27 @@ class CodeHandler(MyHandler):
 
 
 class SizeHandler(MyHandler):
-
     def get(self, size):
-        '''Generate certain size file'''
+        """Generate certain size file"""
         size = size.lower()
         try:
-            if 'k' in size:
-                i = int(size.replace('k', '')) * 1024
-            elif 'm' in size:
-                i = int(size.replace('m', '')) * 1024 * 1024
+            if "k" in size:
+                i = int(size.replace("k", "")) * 1024
+            elif "m" in size:
+                i = int(size.replace("m", "")) * 1024 * 1024
             else:
                 i = int(size)
         except ValueError:
-            return self.write('Wrong argument\n')
+            return self.write("Wrong argument\n")
 
-        self.set_header('Content-Description', 'File Transfer')
-        self.set_header('Content-Type', 'application/octet-stream')
-        #self.set_header('attachment','attachment; filename="a.zip"')
-        self.set_header('Content-Transfer-Encoding', 'binary')
-        return self.write('f' * i)
+        self.set_header("Content-Description", "File Transfer")
+        self.set_header("Content-Type", "application/octet-stream")
+        # self.set_header('attachment','attachment; filename="a.zip"')
+        self.set_header("Content-Transfer-Encoding", "binary")
+        return self.write("f" * i)
+
 
 class SlowHandler(MyHandler):
-
     async def get(self, start, end=0):
         self.write("Start at: %s<br/>\n" % datetime.datetime.now())
         _start = int(start)
@@ -202,43 +206,40 @@ class SlowHandler(MyHandler):
 
         self.write("End at: %s<br/>\n" % datetime.datetime.now())
 
-class RedirectHandler(MyHandler):
 
+class RedirectHandler(MyHandler):
     def get(self, method):
-        url = self.get_argument('url')
-        if method in ('301', '302'):
-            self.redirect(url, permanent=(method == '301'))
-        elif method == 'js':
+        url = self.get_argument("url")
+        if method in ("301", "302"):
+            self.redirect(url, permanent=(method == "301"))
+        elif method == "js":
             self.write('<script>location.href="%s"</script>\n' % url)
-        elif method == 'meta':
-            self.write(
-                '<meta http-equiv="refresh" content="0; url=%s" />\n' %
-                url)
+        elif method == "meta":
+            self.write('<meta http-equiv="refresh" content="0; url=%s" />\n' % url)
         else:
-            self.write('wrong argument\n')
+            self.write("wrong argument\n")
 
 
 define("ip", help="ip to bind", default=None)
 define("port", help="port to listen", default=9527)
 define("debug", default=False, help="enable debug?")
 tornado.options.parse_command_line()
-SETTINGS = {
-    'debug': options.debug,
-    'node_id': get_host_hash(),
-    'gzip': True
-}
+SETTINGS = {"debug": options.debug, "node_id": get_host_hash(), "gzip": True}
 
-APP = tornado.web.Application([
-    (r'/', MainHandler),
-    (r'/trace/?.*', TraceHandler),
-    (r'/static/(.*)', FileHandler),
-    (r'/dynamic/.*', DynamicHandler),
-    (r'/code/(\d+).*', CodeHandler),
-    (r'/size/([\d|k|m]+).*', SizeHandler),
-    (r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
-    (r'/redirect/(.*)', RedirectHandler),
-    (r'/*', MainHandler),
-], **SETTINGS)
+APP = tornado.web.Application(
+    [
+        (r"/", MainHandler),
+        (r"/trace/?.*", TraceHandler),
+        (r"/static/(.*)", FileHandler),
+        (r"/dynamic/.*", DynamicHandler),
+        (r"/code/(\d+).*", CodeHandler),
+        (r"/size/([\d|k|m]+).*", SizeHandler),
+        (r"/slow/(\d+)-?(\d+)?.*", SlowHandler),
+        (r"/redirect/(.*)", RedirectHandler),
+        (r"/*", MainHandler),
+    ],
+    **SETTINGS,
+)
 
 if __name__ == "__main__":
     if not options.port:
