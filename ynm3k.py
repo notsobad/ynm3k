@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 import sys
-import time
 import uuid
 import datetime
 import mimetypes
@@ -18,7 +17,7 @@ from tornado import gen
 def get_host_hash():
     hostname = socket.gethostname()
     m = hashlib.md5()
-    m.update(hostname)
+    m.update(hostname.encode('utf-8'))
     return m.hexdigest()[:7]
 
 class MyHandler(tornado.web.RequestHandler):
@@ -99,7 +98,7 @@ class FileHandler(MyHandler):
     def get(self, file_name):
         modified = datetime.datetime.now()
         self.set_header("Last-Modified", modified)
-        mime_type, encoding = mimetypes.guess_type(file_name)
+        mime_type, _ = mimetypes.guess_type(file_name)
         if mime_type:
             self.set_header("Content-Type", mime_type)
         try:
@@ -110,12 +109,12 @@ class FileHandler(MyHandler):
             self.set_header("Expires", datetime.datetime.utcnow() +
                             datetime.timedelta(seconds=cache_time))
             self.set_header("Cache-Control", "max-age=" + str(cache_time))
-        self.write(file_name)
+        self.write(file_name+"\n")
 
 
 class DynamicHandler(MyHandler):
 
-    def get(self, file_name):
+    def get(self):
         '''Generate random content for dynamic page'''
         self.set_header("Content-Type", "text/html")
         d = {}
@@ -123,7 +122,7 @@ class DynamicHandler(MyHandler):
         d['path'] = self.request.path
         d['query'] = self.request.query
         d['uri'] = self.request.uri
-        d['body'] = self.request.body
+        d['body'] = self.request.body.decode('utf-8')
         d['arguments'] = str(self.request.arguments)
 
         try:
@@ -137,7 +136,7 @@ class DynamicHandler(MyHandler):
             pass
 
         j = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write('hello :-)<pre>%s</pre><hr>%s' % (j, uuid.uuid4()))
+        self.write('<pre>%s</pre><hr/>%s\n' % (j, uuid.uuid4()))
 
     post = get
 
@@ -151,7 +150,7 @@ class CodeHandler(MyHandler):
 
     def write_error(self, code):
         self.write(
-            '<h1>Http %s</h1> <hr/>Generated at %s' %
+            '<h1>Http %s</h1> <hr/>Generated at %s\n' %
             (code, str(
                 datetime.datetime.now())))
 
@@ -176,7 +175,7 @@ class SizeHandler(MyHandler):
             else:
                 i = int(size)
         except ValueError:
-            return self.write('Wrong argument')
+            return self.write('Wrong argument\n')
 
         self.set_header('Content-Description', 'File Transfer')
         self.set_header('Content-Type', 'application/octet-stream')
@@ -184,16 +183,10 @@ class SizeHandler(MyHandler):
         self.set_header('Content-Transfer-Encoding', 'binary')
         return self.write('f' * i)
 
-
 class SlowHandler(MyHandler):
 
-    @tornado.web.asynchronous
-    @gen.engine
-    def get(self, start, end=0):
-        '''
-        Check https://gist.github.com/lbolla/3826189
-        '''
-        self.write("Start at: %s<br/>" % datetime.datetime.now())
+    async def get(self, start, end=0):
+        self.write("Start at: %s<br/>\n" % datetime.datetime.now())
         _start = int(start)
         _end = 0
 
@@ -205,11 +198,9 @@ class SlowHandler(MyHandler):
         else:
             i = _start
 
-        yield gen.Task(tornado.ioloop.IOLoop.instance().add_timeout, time.time() + i)
+        await gen.sleep(i)
 
-        self.write("End at: %s<br/>" % datetime.datetime.now())
-        self.finish()
-
+        self.write("End at: %s<br/>\n" % datetime.datetime.now())
 
 class RedirectHandler(MyHandler):
 
@@ -218,13 +209,13 @@ class RedirectHandler(MyHandler):
         if method in ('301', '302'):
             self.redirect(url, permanent=(method == '301'))
         elif method == 'js':
-            self.write('<script>location.href="%s"</script>' % url)
+            self.write('<script>location.href="%s"</script>\n' % url)
         elif method == 'meta':
             self.write(
-                '<meta http-equiv="refresh" content="0; url=%s" />' %
+                '<meta http-equiv="refresh" content="0; url=%s" />\n' %
                 url)
         else:
-            self.write('wrong argument')
+            self.write('wrong argument\n')
 
 
 define("ip", help="ip to bind", default=None)
@@ -241,7 +232,7 @@ APP = tornado.web.Application([
     (r'/', MainHandler),
     (r'/trace/?.*', TraceHandler),
     (r'/static/(.*)', FileHandler),
-    (r'/dynamic/(.*)', DynamicHandler),
+    (r'/dynamic/.*', DynamicHandler),
     (r'/code/(\d+).*', CodeHandler),
     (r'/size/([\d|k|m]+).*', SizeHandler),
     (r'/slow/(\d+)-?(\d+)?.*', SlowHandler),
