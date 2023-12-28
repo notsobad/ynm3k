@@ -14,20 +14,23 @@ from tornado.options import define, options
 import tornado
 from tornado import gen
 
+# pylint: disable=W0223
+# pylint: disable=C0115
+# pylint: disable=C0116
 
 def get_host_hash():
+    """Generate hash from hostname"""
     hostname = socket.gethostname()
     m = hashlib.md5()
     m.update(hostname.encode("utf-8"))
     return m.hexdigest()[:7]
-
 
 class MyHandler(tornado.web.RequestHandler):
     def head(self, *args, **kwargs):
         return self.get(*args, **kwargs)
 
     def set_default_headers(self):
-        self.set_header("Server", "YNM3K-%s" % SETTINGS["node_id"])
+        self.set_header("Server", f"YNM3K-{SETTINGS['node_id']}")
         self.set_header(
             "Set-Cookie",
             "csrftoken=8e0f2f299fede170969578ebceec0967; "
@@ -83,12 +86,7 @@ class MainHandler(MyHandler):
 class TraceHandler(MyHandler):
     def get(self):
         self.set_header("Content-Type", "text/plain")
-        out = "{method} {url} {version}\r\n{headers}\r\n\r\n".format(
-            method=self.request.method,
-            url=self.request.uri,
-            version=self.request.version,
-            headers=str(self.request.headers),
-        )
+        out = f"{self.request.method} {self.request.uri} {self.request.version}\r\n{self.request.headers}\r\n\r\n" 
         self.write(out)
 
     def post(self):
@@ -104,15 +102,16 @@ class FileHandler(MyHandler):
             self.set_header("Content-Type", mime_type)
         try:
             cache_time = int(self.request.headers.get("Cache", "95270"))
-        except:
+        except ValueError:
             cache_time = 95270
+
         if cache_time:
             self.set_header(
                 "Expires",
                 datetime.datetime.utcnow() + datetime.timedelta(seconds=cache_time),
             )
-            self.set_header("Cache-Control", "max-age=" + str(cache_time))
-        self.write(file_name + "\n")
+            self.set_header("Cache-Control", f"max-age={cache_time}")
+        self.write(f"{file_name}\n")
 
 
 class DynamicHandler(MyHandler):
@@ -129,16 +128,17 @@ class DynamicHandler(MyHandler):
 
         try:
             i = int(self.request.headers.get("Cache", 0))
-            assert i
+        except ValueError:
+            i = 0
+
+        if i > 0:
             self.set_header(
                 "Expires", datetime.datetime.utcnow() + datetime.timedelta(seconds=i)
             )
-            self.set_header("Cache-Control", "max-age=%s" % i)
-        except:
-            pass
+            self.set_header("Cache-Control", f"max-age={i}")
 
         j = json.dumps(d, indent=4, ensure_ascii=False)
-        self.write("<pre>%s</pre><hr/>%s\n" % (j, uuid.uuid4()))
+        self.write(f"<pre>{j}</pre><hr/>{uuid.uuid4()}\n")
 
     post = get
 
@@ -149,18 +149,10 @@ class CodeHandler(MyHandler):
         code = int(code)
         self.send_error(code)
 
-    def write_error(self, code):
-        self.write(
-            "<h1>Http %s</h1> <hr/>Generated at %s\n"
-            % (code, str(datetime.datetime.now()))
+    def write_error(self, status_code, **kargs):
+        self.finish(
+            f"<h1>Http {status_code}</h1><hr/>Generated at {datetime.datetime.now()}\n"
         )
-
-    def set_status(self, status_code, reason=None):
-        try:
-            super(CodeHandler, self).set_status(status_code, reason)
-        except:
-            tornado.web.RequestHandler._status_code = status_code
-            tornado.web.RequestHandler._reason = "unknown service error"
 
 
 class SizeHandler(MyHandler):
@@ -186,7 +178,7 @@ class SizeHandler(MyHandler):
 
 class SlowHandler(MyHandler):
     async def get(self, start, end=0):
-        self.write("Start at: %s<br/>\n" % datetime.datetime.now())
+        self.write(f"Start at: {datetime.datetime.now()}<br/>\n")
         _start = int(start)
         _end = 0
 
@@ -200,18 +192,18 @@ class SlowHandler(MyHandler):
 
         await gen.sleep(i)
 
-        self.write("End at: %s<br/>\n" % datetime.datetime.now())
+        self.write(f"End at: {datetime.datetime.now()}<br/>\n")
 
 
 class RedirectHandler(MyHandler):
     def get(self, method):
         url = self.get_argument("url")
         if method in ("301", "302"):
-            self.redirect(url, permanent=(method == "301"))
+            self.redirect(url, status=int(method))
         elif method == "js":
-            self.write('<script>location.href="%s"</script>\n' % url)
+            self.write(f'<script>location.href="{url}"</script>\n' % url)
         elif method == "meta":
-            self.write('<meta http-equiv="refresh" content="0; url=%s" />\n' % url)
+            self.write(f'<meta http-equiv="refresh" content="0; url={url}" />\n')
         else:
             self.write("wrong argument\n")
 
