@@ -37,11 +37,7 @@ class MyHandler(tornado.web.RequestHandler):
 
 class MainHandler(MyHandler):
     def get(self):
-        try:
-            headers = self.request.headers._dict
-        except:
-            headers = self.request.headers
-
+        headers = self.request.headers
         links = [
             "/trace/",
             "/static/abc.js",
@@ -59,9 +55,9 @@ class MainHandler(MyHandler):
             "/size/1k.bin",
             "/slow/3",
             "/slow/4-10",
-            "/redirect/301?url=http://www.notsobad.me",
-            "/redirect/302?url=http://www.notsobad.me",
-            "/redirect/js?url=http://www.notsobad.me",
+            "/redirect/301?url=https://github.com/notsobad/ynm3k",
+            "/redirect/302?url=https://github.com/notsobad/ynm3k",
+            "/redirect/js?url=https://github.com/notsobad/ynm3k",
         ]
         tpl = """
         <h1>YNM3K Test site</h1>
